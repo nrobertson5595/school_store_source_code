@@ -72,6 +72,8 @@ def create_store_item():
     for field in required_fields:
         if field not in data:
             return jsonify({'error': f'{field} is required'}), 400
+        if not data[field]:
+            return jsonify({'error': f'{field} cannot be empty'}), 400
 
     # Validate available_sizes if provided
     available_sizes = data.get('available_sizes', ['medium'])
@@ -79,7 +81,15 @@ def create_store_item():
 
     if not isinstance(available_sizes, list) or not available_sizes:
         return jsonify({'error': 'available_sizes must be a non-empty list'}), 400
-
+    if not all(isinstance(size, str) for size in available_sizes):
+        return jsonify({'error': 'available_sizes must be a list of strings'}), 400
+    while available_sizes:
+        if not available_sizes:
+            return jsonify({'error': 'available_sizes cannot be empty'}), 400
+        if not all(size in valid_sizes for size in available_sizes):
+            return jsonify({
+                'error': f'Invalid sizes: {available_sizes}. Valid sizes are: {list(valid_sizes)}'
+            }), 400
     invalid_sizes = [
         size for size in available_sizes if size not in valid_sizes]
     if invalid_sizes:
