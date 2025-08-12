@@ -1,223 +1,199 @@
-import { API_BASE_URL } from '../utils/constants.js';
+import { getToken } from './authService';
 
-class StoreService {
-    async getAllItems() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/items`, {
-                credentials: 'include'
-            });
+const BASE_URL = '/api/store';
 
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, items: data };
+const getAuthHeaders = () => {
+    const token = getToken();
+    return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+    };
+};
+
+const getAuthHeadersForFormData = () => {
+    const token = getToken();
+    return {
+        'Authorization': `Bearer ${token}`,
+    };
+};
+
+export const getStoreItems = async () => {
+    const response = await fetch(`${BASE_URL}/items`, {
+        headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch store items');
+    }
+    return response.json();
+};
+
+export const createStoreItem = async (itemData) => {
+    // Convert FormData to JSON if needed
+    let body;
+    let headers;
+
+    if (itemData instanceof FormData) {
+        // Convert FormData to plain object
+        const jsonData = {};
+        const availableSizes = [];
+
+        for (let [key, value] of itemData.entries()) {
+            if (key === 'available_sizes') {
+                availableSizes.push(value);
+            } else if (key === 'image') {
+                // Skip file uploads for now - backend expects JSON
+                continue;
             } else {
-                return {
-                    success: false,
-                    error: 'Failed to fetch store items'
-                };
+                // Convert string 'true'/'false' to boolean for is_available
+                if (key === 'is_available') {
+                    jsonData[key] = value === 'true';
+                } else {
+                    jsonData[key] = value;
+                }
             }
+        }
+
+        if (availableSizes.length > 0) {
+            jsonData.available_sizes = availableSizes;
+        }
+
+        body = JSON.stringify(jsonData);
+        headers = getAuthHeaders(); // Use JSON headers
+    } else {
+        body = JSON.stringify(itemData);
+        headers = getAuthHeaders();
+    }
+
+    const response = await fetch(`${BASE_URL}/items`, {
+        method: 'POST',
+        headers: headers,
+        body: body,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to create store item');
+    }
+    return response.json();
+};
+
+export const updateStoreItem = async (id, itemData) => {
+    // Convert FormData to JSON if needed (same as createStoreItem)
+    let body;
+    let headers;
+
+    if (itemData instanceof FormData) {
+        // Convert FormData to plain object
+        const jsonData = {};
+        const availableSizes = [];
+
+        for (let [key, value] of itemData.entries()) {
+            if (key === 'available_sizes') {
+                availableSizes.push(value);
+            } else if (key === 'image') {
+                // Skip file uploads for now - backend expects JSON
+                continue;
+            } else {
+                // Convert string 'true'/'false' to boolean for is_available
+                if (key === 'is_available') {
+                    jsonData[key] = value === 'true';
+                } else {
+                    jsonData[key] = value;
+                }
+            }
+        }
+
+        if (availableSizes.length > 0) {
+            jsonData.available_sizes = availableSizes;
+        }
+
+        body = JSON.stringify(jsonData);
+        headers = getAuthHeaders(); // Use JSON headers
+    } else {
+        body = JSON.stringify(itemData);
+        headers = getAuthHeaders();
+    }
+
+    const response = await fetch(`${BASE_URL}/items/${id}`, {
+        method: 'PUT',
+        headers: headers,
+        body: body,
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update store item');
+    }
+    return response.json();
+};
+
+export const deleteStoreItem = async (id) => {
+    const response = await fetch(`${BASE_URL}/items/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+        throw new Error('Failed to delete store item');
+    }
+    return response.json();
+};
+
+export const uploadImage = async (formData) => {
+    const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        headers: getAuthHeadersForFormData(),
+        body: formData,
+    });
+    if (!response.ok) {
+        throw new Error('Failed to upload image');
+    }
+    return response.json();
+};
+export const purchaseItem = async (itemId, size, quantity = 1) => {
+    const requestData = {
+        item_id: itemId,
+        size: size,
+        quantity: quantity
+    };
+    console.log('DEBUG: purchaseItem called with:', requestData);
+    const response = await fetch(`${BASE_URL}/purchase`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(requestData),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.log('DEBUG: Backend error response:', errorData);
+        throw new Error(errorData.error || 'Failed to purchase item');
+    }
+    return response.json();
+};
+
+// Batch purchase function that calls single item purchase for each item
+export const purchaseItems = async (items) => {
+    console.log('DEBUG: purchaseItems batch called with:', items);
+    const results = [];
+    const errors = [];
+
+    for (const item of items) {
+        try {
+            const result = await purchaseItem(item.id, item.size, item.quantity || 1);
+            results.push(result);
         } catch (error) {
-            console.error('Error fetching store items:', error);
-            return { success: false, error: 'Error fetching store items' };
+            errors.push({ item, error: error.message });
         }
     }
 
-    async createItem(itemData) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/items`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(itemData)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, item: data };
-            } else {
-                const errorData = await response.json();
-                return {
-                    success: false,
-                    error: errorData.message || 'Failed to create store item'
-                };
-            }
-        } catch (error) {
-            console.error('Error creating store item:', error);
-            return { success: false, error: 'Error creating store item' };
-        }
+    if (errors.length > 0) {
+        console.log('DEBUG: Some purchases failed:', errors);
+        return {
+            success: false,
+            message: `Failed to purchase ${errors.length} item(s)`,
+            errors,
+            successfulPurchases: results
+        };
     }
 
-    async updateItem(itemId, itemData) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/items/${itemId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify(itemData)
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, item: data };
-            } else {
-                const errorData = await response.json();
-                return {
-                    success: false,
-                    error: errorData.message || 'Failed to update store item'
-                };
-            }
-        } catch (error) {
-            console.error('Error updating store item:', error);
-            return { success: false, error: 'Error updating store item' };
-        }
-    }
-
-    async deleteItem(itemId) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/items/${itemId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                return { success: true };
-            } else {
-                const errorData = await response.json();
-                return {
-                    success: false,
-                    error: errorData.message || 'Failed to delete store item'
-                };
-            }
-        } catch (error) {
-            console.error('Error deleting store item:', error);
-            return { success: false, error: 'Error deleting store item' };
-        }
-    }
-
-    async purchaseItem(userId, itemId, quantity, size) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/purchase`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    user_id: userId,
-                    item_id: itemId,
-                    quantity: quantity,
-                    size: size
-                })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, purchase: data };
-            } else {
-                const errorData = await response.json();
-                return {
-                    success: false,
-                    error: errorData.message || 'Failed to purchase item'
-                };
-            }
-        } catch (error) {
-            console.error('Error purchasing item:', error);
-            return { success: false, error: 'Error purchasing item' };
-        }
-    }
-
-    async getPurchaseHistory(userId) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/store/purchases/${userId}`, {
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                return { success: true, purchases: data };
-            } else {
-                return {
-                    success: false,
-                    error: 'Failed to fetch purchase history'
-                };
-            }
-        } catch (error) {
-            console.error('Error fetching purchase history:', error);
-            return { success: false, error: 'Error fetching purchase history' };
-        }
-    }
-
-    getMockStoreItems() {
-        return [
-            {
-                id: 1,
-                name: '🎨 Art Supplies Set',
-                description: 'Complete set of colored pencils, markers, and drawing paper',
-                price: 50,
-                category: 'Art & Crafts',
-                image_url: '🎨'
-            },
-            {
-                id: 2,
-                name: '📚 Adventure Book',
-                description: 'Exciting collection of adventure stories for young readers',
-                price: 75,
-                category: 'Books',
-                image_url: '📚'
-            },
-            {
-                id: 3,
-                name: '🎮 Educational Game',
-                description: 'Fun learning game that makes math and science exciting',
-                price: 100,
-                category: 'Games',
-                image_url: '🎮'
-            },
-            {
-                id: 4,
-                name: '✏️ Premium Pencil Set',
-                description: 'Set of high-quality pencils with fun designs',
-                price: 25,
-                category: 'School Supplies',
-                image_url: '✏️'
-            },
-            {
-                id: 5,
-                name: '🏆 Achievement Stickers',
-                description: 'Pack of colorful achievement and motivation stickers',
-                price: 15,
-                category: 'Rewards',
-                image_url: '🏆'
-            },
-            {
-                id: 6,
-                name: '🧩 Puzzle Challenge',
-                description: '100-piece puzzle with beautiful artwork',
-                price: 60,
-                category: 'Games',
-                image_url: '🧩'
-            }
-        ];
-    }
-}
-
-const storeService = new StoreService();
-
-// Export both default and named exports for compatibility
-export default storeService;
-export const {
-    getAllItems,
-    createItem,
-    updateItem,
-    deleteItem,
-    purchaseItem,
-    getPurchaseHistory,
-    getMockStoreItems
-} = storeService;
-
-// Alias for backward compatibility
-export const getStoreItems = storeService.getAllItems.bind(storeService);
+    return {
+        success: true,
+        purchases: results
+    };
+};

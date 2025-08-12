@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,6 +16,7 @@ import {
 
 const StudentTable = ({ students, onEdit, onDelete }) => {
     const [sortConfig, setSortConfig] = useState({ key: 'first_name', direction: 'ascending' });
+    const [visiblePasswords, setVisiblePasswords] = useState({});
 
     const sortedStudents = React.useMemo(() => {
         let sortableItems = [...students];
@@ -41,6 +42,13 @@ const StudentTable = ({ students, onEdit, onDelete }) => {
         setSortConfig({ key, direction });
     };
 
+    const togglePasswordVisibility = (studentId) => {
+        setVisiblePasswords(prevState => ({
+            ...prevState,
+            [studentId]: !prevState[studentId]
+        }));
+    };
+
     return (
         <Table>
             <TableHeader>
@@ -48,6 +56,7 @@ const StudentTable = ({ students, onEdit, onDelete }) => {
                     <TableHead onClick={() => requestSort('first_name')}>First Name</TableHead>
                     <TableHead onClick={() => requestSort('last_name')}>Last Name</TableHead>
                     <TableHead onClick={() => requestSort('username')}>Username</TableHead>
+                    <TableHead>Password</TableHead>
                     <TableHead onClick={() => requestSort('email')}>Email</TableHead>
                     <TableHead onClick={() => requestSort('role')}>Role</TableHead>
                     <TableHead onClick={() => requestSort('points_balance')}>Points</TableHead>
@@ -60,6 +69,16 @@ const StudentTable = ({ students, onEdit, onDelete }) => {
                         <TableCell>{student.first_name}</TableCell>
                         <TableCell>{student.last_name}</TableCell>
                         <TableCell>{student.username}</TableCell>
+                        <TableCell>
+                            <div className="flex items-center gap-2">
+                                <span>
+                                    {visiblePasswords[student.id] ? student.password : '••••••••'}
+                                </span>
+                                <Button variant="ghost" size="icon" onClick={() => togglePasswordVisibility(student.id)}>
+                                    {visiblePasswords[student.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                        </TableCell>
                         <TableCell>{student.email}</TableCell>
                         <TableCell>{student.role}</TableCell>
                         <TableCell>{student.points_balance}</TableCell>

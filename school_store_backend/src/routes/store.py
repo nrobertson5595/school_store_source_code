@@ -38,6 +38,8 @@ def teacher_required(f):
 @store_bp.route('/store/items', methods=['GET'])
 @login_required
 def get_store_items():
+    print(f"DEBUG: /store/items called by user_id: {session.get('user_id')}")
+
     # Get query parameters
     category = request.args.get('category')
     available_only = request.args.get(
@@ -52,7 +54,19 @@ def get_store_items():
         query = query.filter_by(is_available=True)
 
     items = query.order_by(StoreItem.name).all()
-    return jsonify([item.to_dict() for item in items])
+    items_list = [item.to_dict() for item in items]
+
+    print(f"DEBUG: Returning {len(items_list)} items")
+    print(
+        f"DEBUG: First item (if any): {items_list[0] if items_list else 'No items'}")
+
+    # The frontend expects {success: true, items: [...]} but backend returns just [...]
+    # This is the issue - let's confirm with logging first
+    response_data = items_list  # Currently returning array directly
+    print(
+        f"DEBUG: Response structure - is list: {isinstance(response_data, list)}")
+
+    return jsonify(response_data)
 
 
 @store_bp.route('/store/items/<int:item_id>', methods=['GET'])

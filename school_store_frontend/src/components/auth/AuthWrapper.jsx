@@ -59,8 +59,23 @@ export const AuthProvider = ({ children }) => {
         navigate('/');
     };
 
+    const refreshUser = async () => {
+        console.log('[AuthWrapper] Refreshing user data...');
+        try {
+            const result = await checkAuthStatus();
+            if (result.isAuthenticated && result.user) {
+                setUser(result.user);
+                console.log('[AuthWrapper] User data refreshed:', result.user);
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error('[AuthWrapper] Error refreshing user data:', error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, isLoading, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, login, logout, isLoading, isAuthenticated: !!user, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

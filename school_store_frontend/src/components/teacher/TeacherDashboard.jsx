@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StudentManagement from './StudentManagement';
 import PointsManagement from './PointsManagement';
+import StoreManagement from './StoreManagement';
 import { useAuth } from '../auth/AuthWrapper';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
@@ -24,12 +25,16 @@ const TeacherDashboard = () => {
                 <TabsList>
                     <TabsTrigger value="student-management">Student Management</TabsTrigger>
                     <TabsTrigger value="points-management">Points Management</TabsTrigger>
+                    <TabsTrigger value="store-management">Store Management</TabsTrigger>
                 </TabsList>
                 <TabsContent value="student-management">
                     <StudentManagement />
                 </TabsContent>
                 <TabsContent value="points-management">
                     <PointsManagement />
+                </TabsContent>
+                <TabsContent value="store-management">
+                    <StoreManagement />
                 </TabsContent>
             </Tabs>
         </div>
