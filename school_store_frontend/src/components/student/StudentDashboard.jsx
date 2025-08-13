@@ -34,7 +34,7 @@ const StudentDashboard = () => {
         <div className="container mx-auto p-4">
             <Toaster richColors />
             <header className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Welcome, {user.first_name}!</h1>
+                <h1 className="text-2xl font-bold font-display">Welcome, {user.first_name}!</h1>
                 <div className="flex items-center gap-4">
                     <span className="font-semibold">Points: {user.points_balance}</span>
                     <Button onClick={logout} variant="outline" size="icon">
@@ -43,7 +43,7 @@ const StudentDashboard = () => {
                 </div>
             </header>
             <Tabs defaultValue="store">
-                <TabsList>
+                <TabsList className="data-[state=active]:bg-accent">
                     <TabsTrigger value="store">Store</TabsTrigger>
                     <TabsTrigger value="cart">
                         <ShoppingCart className="h-4 w-4 mr-2" />

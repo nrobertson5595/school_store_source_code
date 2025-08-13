@@ -26,9 +26,9 @@ const LoginForm = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <Card className="w-full max-w-md">
+            <Card className="w-full max-w-md animate-in fade-in duration-1000">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold">School Store Login</CardTitle>
+                    <CardTitle className="text-2xl font-bold font-display">School Store Login</CardTitle>
                     <CardDescription>Enter your credentials to access your account.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -58,7 +58,7 @@ const LoginForm = () => {
                             </div>
                             {error && <p className="text-red-500 text-sm">{error}</p>}
                         </div>
-                        <Button type="submit" className="w-full mt-6" disabled={loading}>
+                        <Button type="submit" className="w-full mt-6 bg-primary" disabled={loading}>
                             {loading ? 'Logging in...' : 'Login'}
                         </Button>
                     </form>

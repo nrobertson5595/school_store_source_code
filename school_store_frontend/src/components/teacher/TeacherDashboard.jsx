@@ -15,14 +15,14 @@ const TeacherDashboard = () => {
             <header className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
                 <div className="flex items-center gap-4">
-                    <span>Welcome, {user.first_name} {user.last_name}</span>
+                    <span className="font-display">Welcome, {user.first_name} {user.last_name}</span>
                     <Button onClick={logout} variant="outline" size="icon">
                         <LogOut className="h-4 w-4" />
                     </Button>
                 </div>
             </header>
             <Tabs defaultValue="student-management">
-                <TabsList>
+                <TabsList className="data-[state=active]:bg-accent">
                     <TabsTrigger value="student-management">Student Management</TabsTrigger>
                     <TabsTrigger value="points-management">Points Management</TabsTrigger>
                     <TabsTrigger value="store-management">Store Management</TabsTrigger>

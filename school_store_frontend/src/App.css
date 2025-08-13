@@ -45,7 +45,7 @@
 :root {
   --radius: 1rem;
   /* Kid-friendly bright color scheme */
-  --background: #f8fafc;
+  --background: #FFFBEB;
   --foreground: #1e293b;
   --card: #ffffff;
   --card-foreground: #1e293b;
@@ -87,4 +87,8 @@
     @apply bg-background text-foreground;
     font-family: 'Nunito', sans-serif;
   }
+}
+
+.font-display {
+  font-family: 'Fredoka One', sans-serif;
 }
