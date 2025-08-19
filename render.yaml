@@ -1,0 +1,34 @@
+services:
+  # Backend API Service
+  - type: web
+    name: school-store-backend
+    env: python
+    buildCommand: pip install -r school_store_backend/requirements.txt
+    startCommand: cd school_store_backend && gunicorn --bind 0.0.0.0:$PORT render_runner:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: school-store-db
+          property: connectionString
+    
+  # Frontend Static Site
+  - type: static
+    name: school-store-frontend
+    buildCommand: cd school_store_frontend && npm ci && npm run build
+    staticPublishPath: school_store_frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: school-store-backend
+          property: host
+
+databases:
+  - name: school-store-db
+    databaseName: school_store
+    user: school_store_user
