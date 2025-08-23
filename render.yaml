@@ -3,8 +3,9 @@ services:
   - type: web
     name: school-store-backend
     env: python
-    buildCommand: pip install -r school_store_backend/requirements.txt
-    startCommand: cd school_store_backend && gunicorn --bind 0.0.0.0:$PORT render_runner:app
+    rootDir: school_store_backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT render_runner:app
     healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
@@ -20,8 +21,9 @@ services:
   - type: web
     name: school-store-frontend
     env: static
-    buildCommand: cd school_store_frontend && npm ci && npm run build
-    staticPublishPath: school_store_frontend/dist
+    rootDir: school_store_frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
         fromService:
