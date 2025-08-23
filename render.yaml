@@ -1,11 +1,10 @@
 services:
-  # Backend API Service
+  # Backend API Service - Ultra simplified
   - type: web
     name: school-store-backend
     env: python
-    rootDir: school_store_backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT render_runner:app
+    buildCommand: pip install -r school_store_backend/requirements.txt
+    startCommand: python -m gunicorn --chdir school_store_backend --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --access-logfile - --error-logfile - render_runner:app
     healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
@@ -17,13 +16,16 @@ services:
           name: school-store-db
           property: connectionString
     
-  # Frontend Static Site (deployed as web service with static environment)
+  # Frontend Static Site
   - type: web
     name: school-store-frontend
     env: static
-    rootDir: school_store_frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
+    buildCommand: cd school_store_frontend && npm ci && npm run build
+    staticPublishPath: school_store_frontend/dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
     envVars:
       - key: VITE_API_BASE_URL
         fromService:
@@ -35,3 +37,4 @@ databases:
   - name: school-store-db
     databaseName: school_store
     user: school_store_user
+    plan: free
