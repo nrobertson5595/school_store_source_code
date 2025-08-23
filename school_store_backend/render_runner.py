@@ -1,3 +1,4 @@
+from src.main import app
 import os
 import sys
 
@@ -5,10 +6,14 @@ import sys
 backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_dir)
 
-# Now import the Flask app
-from src.main import app
+# Import the Flask app from src.main
+# This app object will be used by gunicorn
 
-# Configure the app for production
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+# IMPORTANT: Do not run app.run() in production
+# Gunicorn will handle running the application
+# The app object is exposed at module level for gunicorn to access
+
+# Optional: Add any production-specific configuration here
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config['DEBUG'] = False
+    app.config['TESTING'] = False
