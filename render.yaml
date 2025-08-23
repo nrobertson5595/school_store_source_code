@@ -16,9 +16,10 @@ services:
           name: school-store-db
           property: connectionString
     
-  # Frontend Static Site
-  - type: static
+  # Frontend Static Site (deployed as web service with static environment)
+  - type: web
     name: school-store-frontend
+    env: static
     buildCommand: cd school_store_frontend && npm ci && npm run build
     staticPublishPath: school_store_frontend/dist
     envVars:
