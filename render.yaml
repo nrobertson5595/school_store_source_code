@@ -26,12 +26,6 @@ services:
       - path: /*
         name: Cache-Control
         value: public, max-age=0, must-revalidate
-    envVars:
-      - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: school-store-backend
-          property: host
 
 databases:
   - name: school-store-db
