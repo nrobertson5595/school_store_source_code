@@ -1,0 +1,15 @@
+{
+    "buildCommand": "cd school_store_frontend && npm install --legacy-peer-deps && npm run build",
+    "outputDirectory": "school_store_frontend/dist",
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "/api"
+        }
+    ],
+    "functions": {
+        "api/index.py": {
+            "maxDuration": 60
+        }
+    }
+}

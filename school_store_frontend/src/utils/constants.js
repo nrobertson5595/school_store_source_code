@@ -12,7 +12,23 @@ console.log('[Constants] VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
 console.log('[Constants] NODE_ENV:', import.meta.env.MODE);
 console.log('[Constants] All Vite env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// For Vercel deployment, use relative path for API or environment variable
+const getApiBaseUrl = () => {
+    // If we have an explicit environment variable, use it
+    if (import.meta.env.VITE_API_BASE_URL) {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+
+    // In production on Vercel, use relative path
+    if (import.meta.env.PROD && typeof window !== 'undefined') {
+        return '/api';
+    }
+
+    // Default to localhost for development
+    return 'http://localhost:5000/api';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 console.log('[Constants] Final API_BASE_URL:', API_BASE_URL);
 
