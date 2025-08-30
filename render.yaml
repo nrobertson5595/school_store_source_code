@@ -20,7 +20,7 @@ services:
   - type: web
     name: school-store-frontend
     env: static
-    buildCommand: cd school_store_frontend && npm ci && npm run build
+    buildCommand: cd school_store_frontend && npm ci --legacy-peer-deps && npm run build
     staticPublishPath: school_store_frontend/dist
     headers:
       - path: /*
