@@ -2,6 +2,7 @@
   "name": "school_store_frontend",
   "private": true,
   "version": "0.0.0",
+  "_comment": "Updated dependencies to fix npm conflicts - date-fns@3.6.0, react-day-picker@9.4.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
