@@ -1,10 +1,10 @@
 services:
-  # Backend API Service - Simplified and fixed
+  # Full-stack deployment - Flask serves both API and frontend
   - type: web
-    name: school-store-backend
+    name: school-store-app
     env: python
-    buildCommand: cd school_store_backend && pip install -r requirements.txt
-    startCommand: cd school_store_backend && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --access-logfile - --error-logfile - render_runner:app
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: cd school_store_backend && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --access-logfile - --error-logfile - src.main:app
     healthCheckPath: /api/health
     envVars:
       - key: FLASK_ENV
@@ -15,20 +15,8 @@ services:
         fromDatabase:
           name: school-store-db
           property: connectionString
-    
-  # Frontend Static Site
-  - type: web
-    name: school-store-frontend
-    env: static
-    buildCommand: cd school_store_frontend && npm ci --legacy-peer-deps && npm run build
-    staticPublishPath: school_store_frontend/dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://school-store-api.onrender.com/api
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: public, max-age=0, must-revalidate
+      - key: NODE_ENV
+        value: production
 
 databases:
   - name: school-store-db

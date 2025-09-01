@@ -57,14 +57,20 @@ def serve(path):
     if static_folder_path is None:
         return "Static folder not configured", 404
 
+    # Don't serve files that start with /api
+    if path.startswith('api/'):
+        return "Not found", 404
+
+    # Try to serve the file if it exists
     if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
         return send_from_directory(static_folder_path, path)
+
+    # For any non-file route, serve index.html (React SPA routing)
+    index_path = os.path.join(static_folder_path, 'index.html')
+    if os.path.exists(index_path):
+        return send_from_directory(static_folder_path, 'index.html')
     else:
-        index_path = os.path.join(static_folder_path, 'index.html')
-        if os.path.exists(index_path):
-            return send_from_directory(static_folder_path, 'index.html')
-        else:
-            return "index.html not found", 404
+        return "index.html not found - please run build script", 404
 
 
 @app.route('/api/health')

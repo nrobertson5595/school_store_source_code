@@ -12,14 +12,14 @@ console.log('[Constants] VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
 console.log('[Constants] NODE_ENV:', import.meta.env.MODE);
 console.log('[Constants] All Vite env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
 
-// For Vercel deployment, use relative path for API or environment variable
+// For Render deployment, use relative path for API in production
 const getApiBaseUrl = () => {
-    // If we have an explicit environment variable, use it
+    // If we have an explicit environment variable, use it (mainly for dev)
     if (import.meta.env.VITE_API_BASE_URL) {
         return import.meta.env.VITE_API_BASE_URL;
     }
 
-    // In production on Vercel, use relative path
+    // In production on Render, use relative path
     if (import.meta.env.PROD && typeof window !== 'undefined') {
         return '/api';
     }
