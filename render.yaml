@@ -6,10 +6,6 @@ services:
     buildCommand: chmod +x build.sh && ./build.sh && python school_store_backend/init_database.py
     startCommand: cd school_store_backend && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 --access-logfile - --error-logfile - src.main:app
     healthCheckPath: /api/health
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: /api/*
     envVars:
       - key: FLASK_ENV
         value: production
