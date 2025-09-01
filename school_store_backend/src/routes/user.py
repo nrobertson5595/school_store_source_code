@@ -35,22 +35,35 @@ def teacher_required(f):
 
 @user_bp.route('/auth/login', methods=['POST'])
 def login():
+    print(
+        f"[DEBUG] Login endpoint called with method: {request.method}", flush=True)
+    print(f"[DEBUG] Request path: {request.path}", flush=True)
+    print(
+        f"[DEBUG] Request headers: Content-Type={request.headers.get('Content-Type')}", flush=True)
+
     data = request.json
+    print(f"[DEBUG] Login data received: {data}", flush=True)
+
     username = data.get('username')
     password = data.get('password')
 
     if not username or not password:
+        print("[DEBUG] Missing username or password", flush=True)
         return jsonify({'error': 'Username and password required'}), 400
 
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         session['user_id'] = user.id
         session['user_role'] = user.role
-        return jsonify({
+        response_data = {
             'message': 'Login successful',
             'user': user.to_dict_safe() if user.role == 'student' else user.to_dict()
-        })
+        }
+        print(
+            f"[DEBUG] Login successful, returning: {response_data}", flush=True)
+        return jsonify(response_data)
 
+    print("[DEBUG] Invalid credentials", flush=True)
     return jsonify({'error': 'Invalid credentials'}), 401
 
 
@@ -64,9 +77,17 @@ def logout():
 @user_bp.route('/auth/me', methods=['GET'])
 @login_required
 def get_current_user():
+    print(f"[DEBUG] /auth/me endpoint called", flush=True)
+    print(
+        f"[DEBUG] Session data: user_id={session.get('user_id')}, user_role={session.get('user_role')}", flush=True)
+
     user = User.query.get(session['user_id'])
     if not user:
+        print("[DEBUG] User not found in database", flush=True)
         return jsonify({'error': 'User not found'}), 404
+
+    print(
+        f"[DEBUG] User found: {user.username}, role: {user.role}", flush=True)
     return jsonify(user.to_dict_safe() if user.role == 'student' else user.to_dict())
 
 # User Management Routes

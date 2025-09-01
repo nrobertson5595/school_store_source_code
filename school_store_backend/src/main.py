@@ -53,21 +53,33 @@ with app.app_context():
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
+    # DEBUG: Log incoming path
+    print(f"[DEBUG] serve() called with path: '{path}'", flush=True)
+
     static_folder_path = app.static_folder
     if static_folder_path is None:
         return "Static folder not configured", 404
 
-    # Don't serve files that start with /api
+    # CRITICAL BUG FIX: Don't intercept API routes - let Flask blueprints handle them
+    # The issue was that path.startswith('api/') was catching all API routes
+    # and returning 404 before they could reach the blueprints
     if path.startswith('api/'):
-        return "Not found", 404
+        print(
+            f"[DEBUG] Path starts with 'api/', NOT serving static - letting Flask handle it", flush=True)
+        # Instead of returning 404, we need to let Flask continue routing
+        # The blueprints registered with /api prefix will handle these
+        from werkzeug.exceptions import NotFound
+        raise NotFound()  # This lets Flask continue looking for matching routes
 
     # Try to serve the file if it exists
     if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
+        print(f"[DEBUG] Serving static file: {path}", flush=True)
         return send_from_directory(static_folder_path, path)
 
     # For any non-file route, serve index.html (React SPA routing)
     index_path = os.path.join(static_folder_path, 'index.html')
     if os.path.exists(index_path):
+        print(f"[DEBUG] Serving index.html for SPA route: {path}", flush=True)
         return send_from_directory(static_folder_path, 'index.html')
     else:
         return "index.html not found - please run build script", 404
@@ -75,6 +87,7 @@ def serve(path):
 
 @app.route('/api/health')
 def health_check():
+    print("[DEBUG] Health check endpoint called", flush=True)
     return {"status": "healthy", "message": "School Store API is running"}, 200
 
 
