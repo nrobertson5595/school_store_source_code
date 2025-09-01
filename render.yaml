@@ -22,4 +22,4 @@ databases:
   - name: school-store-db
     databaseName: school_store
     user: school_store_user
-    plan: free
+    plan: Basic-256mb
