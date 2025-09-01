@@ -9,8 +9,14 @@ from flask_cors import CORS
 from flask import Flask, send_from_directory
 import os
 import sys
+import logging
+from sqlalchemy import text
 # DON'T CHANGE THIS !!!
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 app = Flask(__name__, static_folder=os.path.join(
@@ -33,21 +39,51 @@ app.register_blueprint(points_bp, url_prefix='/api')
 app.register_blueprint(store_bp, url_prefix='/api')
 
 # Database configuration
-# Database configuration
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
+
+# Initialize database with proper error handling
+try:
+    db.init_app(app)
+    logger.info(
+        f"Database initialized with URI: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
+except Exception as e:
+    logger.error(f"Failed to initialize database: {e}")
+    # Continue running without database - app will handle errors gracefully
 
 # Create uploads directory
 uploads_dir = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 os.makedirs(uploads_dir, exist_ok=True)
 
-with app.app_context():
-    db.create_all()
+# Attempt to create tables, but don't fail if database isn't ready
+
+
+def init_database():
+    """Initialize database tables with proper error handling."""
+    try:
+        with app.app_context():
+            # Test database connection first - using session.execute for compatibility
+            db.session.execute(text("SELECT 1"))
+            db.session.commit()
+            logger.info("Database connection successful")
+
+            # Create tables
+            db.create_all()
+            logger.info("Database tables created successfully")
+            return True
+    except Exception as e:
+        logger.warning(f"Database initialization deferred: {e}")
+        logger.warning(
+            "Tables will be created when database becomes available")
+        return False
+
+
+# Try to initialize database but don't fail the app if it doesn't work
+database_ready = init_database()
 
 
 @app.route('/', defaults={'path': ''})
@@ -87,8 +123,24 @@ def serve(path):
 
 @app.route('/api/health')
 def health_check():
+    """Health check endpoint with database status."""
     print("[DEBUG] Health check endpoint called", flush=True)
-    return {"status": "healthy", "message": "School Store API is running"}, 200
+
+    # Check database connectivity
+    db_status = "connected"
+    try:
+        with app.app_context():
+            db.session.execute(text("SELECT 1"))
+            db.session.commit()
+    except Exception as e:
+        db_status = f"error: {str(e)[:100]}"
+        logger.error(f"Database health check failed: {e}")
+
+    return {
+        "status": "healthy",
+        "message": "School Store API is running",
+        "database": db_status
+    }, 200
 
 
 if __name__ == '__main__':

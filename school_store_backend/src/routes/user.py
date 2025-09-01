@@ -4,8 +4,31 @@ from src.models.points_transaction import PointsTransaction
 from src.models.store_item import StoreItem
 from src.models.purchase import Purchase
 from functools import wraps
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
+import logging
 
+logger = logging.getLogger(__name__)
 user_bp = Blueprint('user', __name__)
+
+# Database error handler decorator
+
+
+def handle_db_errors(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except OperationalError as e:
+            logger.error(f"Database connection error: {e}")
+            return jsonify({'error': 'Database connection error. Please try again later.'}), 503
+        except SQLAlchemyError as e:
+            logger.error(f"Database error: {e}")
+            db.session.rollback()
+            return jsonify({'error': 'Database operation failed. Please try again.'}), 500
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return jsonify({'error': 'An unexpected error occurred.'}), 500
+    return decorated_function
 
 # Authentication decorator
 
@@ -24,9 +47,13 @@ def teacher_required(f):
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return jsonify({'error': 'Authentication required'}), 401
-        user = User.query.get(session['user_id'])
-        if not user or user.role != 'teacher':
-            return jsonify({'error': 'Teacher access required'}), 403
+        try:
+            user = User.query.get(session['user_id'])
+            if not user or user.role != 'teacher':
+                return jsonify({'error': 'Teacher access required'}), 403
+        except (OperationalError, SQLAlchemyError) as e:
+            logger.error(f"Database error in teacher_required: {e}")
+            return jsonify({'error': 'Database connection error'}), 503
         return f(*args, **kwargs)
     return decorated_function
 
@@ -34,6 +61,7 @@ def teacher_required(f):
 
 
 @user_bp.route('/auth/login', methods=['POST'])
+@handle_db_errors
 def login():
     print(
         f"[DEBUG] Login endpoint called with method: {request.method}", flush=True)
@@ -76,6 +104,7 @@ def logout():
 
 @user_bp.route('/auth/me', methods=['GET'])
 @login_required
+@handle_db_errors
 def get_current_user():
     print(f"[DEBUG] /auth/me endpoint called", flush=True)
     print(
@@ -95,6 +124,7 @@ def get_current_user():
 
 @user_bp.route('/users', methods=['GET'])
 @teacher_required
+@handle_db_errors
 def get_users():
     users = User.query.all()
     return jsonify([user.to_dict() for user in users])
@@ -102,6 +132,7 @@ def get_users():
 
 @user_bp.route('/users', methods=['POST'])
 @teacher_required
+@handle_db_errors
 def create_user():
     data = request.json
 
@@ -135,13 +166,19 @@ def create_user():
     )
     user.set_password(data['password'])
 
-    db.session.add(user)
-    db.session.commit()
-    return jsonify(user.to_dict()), 201
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(user.to_dict()), 201
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error(f"Failed to create user: {e}")
+        return jsonify({'error': 'Failed to create user'}), 500
 
 
 @user_bp.route('/users/<int:user_id>', methods=['GET'])
 @login_required
+@handle_db_errors
 def get_user(user_id):
     current_user = User.query.get(session['user_id'])
 
@@ -155,6 +192,7 @@ def get_user(user_id):
 
 @user_bp.route('/users/<int:user_id>', methods=['PUT'])
 @teacher_required
+@handle_db_errors
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.json
@@ -168,14 +206,25 @@ def update_user(user_id):
     if 'password' in data:
         user.set_password(data['password'])
 
-    db.session.commit()
-    return jsonify(user.to_dict())
+    try:
+        db.session.commit()
+        return jsonify(user.to_dict())
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error(f"Failed to update user: {e}")
+        return jsonify({'error': 'Failed to update user'}), 500
 
 
 @user_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @teacher_required
+@handle_db_errors
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
-    db.session.delete(user)
-    db.session.commit()
-    return '', 204
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return '', 204
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logger.error(f"Failed to delete user: {e}")
+        return jsonify({'error': 'Failed to delete user'}), 500
