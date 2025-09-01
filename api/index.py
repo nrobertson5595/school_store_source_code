@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-# Add the school_store_backend directory to path
+# Add the school_store_backend directory to path BEFORE importing
 backend_dir = Path(__file__).parent.parent / "school_store_backend"
 sys.path.insert(0, str(backend_dir))
 sys.path.insert(0, str(backend_dir / "src"))
@@ -12,7 +12,7 @@ sys.path.insert(0, str(backend_dir / "src"))
 if not os.environ.get('DATABASE_URL'):
     os.environ['DATABASE_URL'] = 'sqlite:///app.db'
 
-# Now import the Flask app
+# Now import the Flask app after path is set up
 
 # Add health check endpoint for Vercel
 
