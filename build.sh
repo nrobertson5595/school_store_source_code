@@ -23,4 +23,8 @@ cp -r ../school_store_frontend/dist/* src/static/
 echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
+# Initialize the database
+echo "Initializing the database..."
+python init_database.py
+
 echo "Build process completed successfully!"
