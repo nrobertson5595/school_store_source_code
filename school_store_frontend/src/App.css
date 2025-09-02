@@ -44,38 +44,103 @@
 
 :root {
   --radius: 1rem;
-  /* Kid-friendly bright color scheme */
+  /* Enhanced School-Themed Color System */
   --background: #FFFBEB;
   --foreground: #1e293b;
   --card: #ffffff;
   --card-foreground: #1e293b;
   --popover: #ffffff;
   --popover-foreground: #1e293b;
-  --primary: #00bfff;
-  /* Electric Blue */
+
+  /* Enhanced Primary Colors - School Theme */
+  --primary: #1e40af;
+  /* Deep Academic Blue */
   --primary-foreground: #ffffff;
   --secondary: #ffd700;
-  /* Sunshine Yellow */
+  /* Sunshine Yellow - keeping compatibility */
   --secondary-foreground: #1e293b;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #ff69b4;
-  /* Hot Pink */
+  --accent: #16a34a;
+  /* School Green */
   --accent-foreground: #ffffff;
-  --destructive: #ef4444;
+  --destructive: #dc2626;
+  /* Apple Red */
   --border: #e2e8f0;
   --input: #f1f5f9;
-  --ring: #00bfff;
-  --success: #32cd32;
-  /* Lime Green */
-  --warning: #ff8c00;
-  /* Orange */
-  --purple: #9370db;
-  --chart-1: #00bfff;
-  --chart-2: #32cd32;
-  --chart-3: #ff69b4;
-  --chart-4: #ffd700;
-  --chart-5: #9370db;
+  --ring: #1e40af;
+
+  /* Enhanced School Spirit Colors */
+  --success: #16a34a;
+  /* School Green */
+  --warning: #eab308;
+  /* Pencil Yellow */
+  --purple: #8b5cf6;
+  /* School Purple */
+
+  /* New School-Themed Variables */
+  --school-blue: #1e40af;
+  /* Deep academic blue */
+  --school-navy: #1e3a8a;
+  /* Navy blue for headers */
+  --school-green: #16a34a;
+  /* Forest green for success */
+  --school-gold: #ca8a04;
+  /* Academic gold */
+  --school-burgundy: #991b1b;
+  /* School spirit red */
+
+  /* Educational Accent Colors */
+  --apple-red: #dc2626;
+  /* Classic apple red */
+  --chalkboard-green: #166534;
+  /* Deep chalkboard green */
+  --notebook-blue: #3b82f6;
+  /* Notebook line blue */
+  --pencil-yellow: #eab308;
+  /* Bright pencil yellow */
+  --eraser-pink: #ec4899;
+  /* Fun eraser pink */
+  --chalk-white: #f8fafc;
+  /* Clean chalk white */
+
+  /* Original bright colors - keeping for compatibility */
+  --electric-blue: #00bfff;
+  --sunshine-yellow: #ffd700;
+  --hot-pink: #ff69b4;
+  --bright-green: #32cd32;
+  --bright-orange: #ff8c00;
+  --bright-purple: #8a2be2;
+
+  /* Gradient Combinations */
+  --gradient-primary: linear-gradient(135deg, var(--school-blue) 0%, var(--notebook-blue) 100%);
+  --gradient-success: linear-gradient(135deg, var(--school-green) 0%, var(--chalkboard-green) 100%);
+  --gradient-warning: linear-gradient(135deg, var(--pencil-yellow) 0%, var(--school-gold) 100%);
+  --gradient-spirit: linear-gradient(135deg, var(--school-burgundy) 0%, var(--apple-red) 100%);
+  --gradient-fun: linear-gradient(135deg, var(--eraser-pink) 0%, var(--hot-pink) 100%);
+
+  /* Enhanced Chart Colors */
+  --chart-1: #1e40af;
+  /* School Blue */
+  --chart-2: #16a34a;
+  /* School Green */
+  --chart-3: #eab308;
+  /* Pencil Yellow */
+  --chart-4: #dc2626;
+  /* Apple Red */
+  --chart-5: #8b5cf6;
+  /* School Purple */
+
+  /* Shadow variations */
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-strong: 0 8px 32px rgba(30, 64, 175, 0.15);
+  --shadow-colored: 0 4px 20px rgba(30, 64, 175, 0.2);
+
+  /* Animation timing */
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
+  --transition-slow: 0.5s ease-in-out;
 }
 
 @layer base {
@@ -91,4 +156,267 @@
 
 .font-display {
   font-family: 'Fredoka One', sans-serif;
+}
+
+/* Enhanced School-Themed Button Styles */
+.btn-school-primary {
+  background: var(--gradient-primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-school-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-colored);
+}
+
+.btn-school-success {
+  background: var(--gradient-success);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.btn-school-warning {
+  background: var(--gradient-warning);
+  color: var(--foreground);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+/* Enhanced Card Styles */
+.card-academic {
+  background: var(--card);
+  border: 2px solid var(--school-blue);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition-normal);
+}
+
+.card-academic:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.card-achievement {
+  background: var(--gradient-warning);
+  color: var(--foreground);
+  border-radius: 20px;
+  transform: rotate(-1deg);
+  transition: var(--transition-normal);
+  padding: 24px;
+}
+
+.card-achievement:hover {
+  transform: rotate(0deg) scale(1.02);
+  box-shadow: var(--shadow-strong);
+}
+
+/* School-Themed Backgrounds */
+.bg-school-primary {
+  background: var(--gradient-primary);
+}
+
+.bg-school-success {
+  background: var(--gradient-success);
+}
+
+.bg-school-warning {
+  background: var(--gradient-warning);
+}
+
+.bg-school-spirit {
+  background: var(--gradient-spirit);
+}
+
+/* Educational Icon Colors */
+.text-apple {
+  color: var(--apple-red);
+}
+
+.text-chalkboard {
+  color: var(--chalkboard-green);
+}
+
+.text-pencil {
+  color: var(--pencil-yellow);
+}
+
+.text-school {
+  color: var(--school-blue);
+}
+
+.text-gold {
+  color: var(--school-gold);
+}
+
+/* Enhanced Animations */
+@keyframes bounce {
+
+  0%,
+  20%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-10px);
+  }
+
+  80% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes wiggle {
+
+  0%,
+  7% {
+    transform: rotateZ(0);
+  }
+
+  15% {
+    transform: rotateZ(-15deg);
+  }
+
+  20% {
+    transform: rotateZ(10deg);
+  }
+
+  25% {
+    transform: rotateZ(-10deg);
+  }
+
+  30% {
+    transform: rotateZ(6deg);
+  }
+
+  35% {
+    transform: rotateZ(-4deg);
+  }
+
+  40%,
+  100% {
+    transform: rotateZ(0);
+  }
+}
+
+@keyframes sparkle {
+
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+/* Animation Classes */
+.bounce-animation {
+  animation: bounce 2s infinite;
+}
+
+.wiggle-animation {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+.sparkle-animation {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* Interactive Elements */
+.school-hover {
+  transition: var(--transition-normal);
+  cursor: pointer;
+}
+
+.school-hover:hover {
+  transform: scale(1.05) rotate(1deg);
+  box-shadow: var(--shadow-colored);
+}
+
+/* Subject Themes */
+.math-theme {
+  border-left: 4px solid var(--notebook-blue);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, var(--background) 100%);
+}
+
+.science-theme {
+  border-left: 4px solid var(--school-green);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.1) 0%, var(--background) 100%);
+}
+
+.reading-theme {
+  border-left: 4px solid var(--school-burgundy);
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.1) 0%, var(--background) 100%);
+}
+
+/* Status Indicators */
+.status-excellent {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--school-green);
+  border: 1px solid var(--school-green);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-good {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--notebook-blue);
+  border: 1px solid var(--notebook-blue);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+
+  .card-academic,
+  .card-achievement {
+    padding: 16px;
+    margin: 8px;
+  }
+
+  .btn-school-primary,
+  .btn-school-success,
+  .btn-school-warning {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .card-achievement {
+    transform: rotate(0deg);
+  }
 }
