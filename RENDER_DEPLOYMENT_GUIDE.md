@@ -16,6 +16,20 @@ The application is configured for a **full-stack deployment** where:
 - Frontend uses relative paths (`/api`) to communicate with the backend
 - PostgreSQL database is automatically provisioned by Render
 
+## Native Dependencies Note
+
+The frontend build process uses several native dependencies that require platform-specific binaries:
+- **@rollup/rollup**: Used by Vite for bundling JavaScript modules
+- **lightningcss**: Used by @tailwindcss/vite for CSS optimization and processing  
+- **esbuild**: Used by Vite internally for fast bundling and minification
+
+These are configured as optional dependencies with platform-specific binaries in package.json and will be automatically rebuilt during deployment via the postinstall script:
+```json
+"postinstall": "npm rebuild @rollup/rollup-linux-x64-gnu lightningcss esbuild || true"
+```
+
+The optional dependencies ensure the correct platform binaries are available during the Render build process.
+
 ## Step 1: Prepare Your Repository
 
 ### 1.1 Ensure All Files Are Committed
