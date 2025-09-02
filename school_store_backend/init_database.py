@@ -10,20 +10,19 @@ Environment Variables:
     DATABASE_URL: PostgreSQL connection string (required for production)
 """
 
-from school_store_backend.src.models.points_transaction import PointsTransaction
-from school_store_backend.src.models.purchase import Purchase
-from school_store_backend.src.models.store_item import StoreItem
-from school_store_backend.src.models.user import db, User
+from src.models.user import db, User
+from src.models.store_item import StoreItem
+from src.models.purchase import Purchase
+from src.models.points_transaction import PointsTransaction
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
 import os
 import sys
 import logging
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 
-# Add parent directory to path to import models
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+# Add the school_store_backend directory to Python path before imports
+sys.path.insert(0, os.path.dirname(__file__))
 
-# Import models
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -64,10 +63,10 @@ def create_tables(engine):
     """Create all database tables."""
     try:
         # Import all models to ensure they're registered
-        from school_store_backend.src.models.user import User
-        from school_store_backend.src.models.store_item import StoreItem
-        from school_store_backend.src.models.purchase import Purchase
-        from school_store_backend.src.models.points_transaction import PointsTransaction
+        from src.models.user import User
+        from src.models.store_item import StoreItem
+        from src.models.purchase import Purchase
+        from src.models.points_transaction import PointsTransaction
 
         # Create all tables
         db.metadata.create_all(engine)
