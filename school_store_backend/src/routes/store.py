@@ -81,36 +81,49 @@ def get_store_item(item_id):
 def create_store_item():
     data = request.json
 
+    # Debug logging
+
     # Validate required fields
     required_fields = ['name']
     for field in required_fields:
         if field not in data:
+
             return jsonify({'error': f'{field} is required'}), 400
         if not data[field]:
+
             return jsonify({'error': f'{field} cannot be empty'}), 400
 
-    # Validate available_sizes if provided
+    # Get available_sizes and convert from uppercase to lowercase
     available_sizes = data.get('available_sizes', ['medium'])
+
+    # Convert sizes to lowercase (frontend sends 'XS', 'S', 'M', 'L', 'XL')
+    if isinstance(available_sizes, list):
+        size_mapping = {
+            'XS': 'xsmall',
+            'S': 'small',
+            'M': 'medium',
+            'L': 'large',
+            'XL': 'xlarge'
+        }
+        available_sizes = [size_mapping.get(
+            size.upper(), size.lower()) for size in available_sizes]
+
     valid_sizes = set(StoreItem.SIZE_PRICES.keys())
 
     if not isinstance(available_sizes, list) or not available_sizes:
+
         return jsonify({'error': 'available_sizes must be a non-empty list'}), 400
-    if not all(isinstance(size, str) for size in available_sizes):
-        return jsonify({'error': 'available_sizes must be a list of strings'}), 400
-    while available_sizes:
-        if not available_sizes:
-            return jsonify({'error': 'available_sizes cannot be empty'}), 400
-        if not all(size in valid_sizes for size in available_sizes):
-            return jsonify({
-                'error': f'Invalid sizes: {available_sizes}. Valid sizes are: {list(valid_sizes)}'
-            }), 400
+
+    # Check for invalid sizes
     invalid_sizes = [
         size for size in available_sizes if size not in valid_sizes]
     if invalid_sizes:
+
         return jsonify({
             'error': f'Invalid sizes: {invalid_sizes}. Valid sizes are: {list(valid_sizes)}'
         }), 400
 
+    # Create the item
     item = StoreItem(
         name=data['name'],
         description=data.get('description'),
@@ -124,6 +137,7 @@ def create_store_item():
 
     db.session.add(item)
     db.session.commit()
+
     return jsonify(item.to_dict()), 201
 
 
@@ -142,6 +156,20 @@ def update_store_item(item_id):
     # Update available sizes if provided
     if 'available_sizes' in data:
         available_sizes = data['available_sizes']
+
+        # Convert sizes from frontend format to backend format
+        if isinstance(available_sizes, list):
+            size_mapping = {
+                'XS': 'xsmall',
+                'S': 'small',
+                'M': 'medium',
+                'L': 'large',
+                'XL': 'xlarge'
+            }
+            # Convert each size, falling back to lowercase if not in mapping
+            available_sizes = [size_mapping.get(
+                size.upper(), size.lower()) for size in available_sizes]
+
         valid_sizes = set(StoreItem.SIZE_PRICES.keys())
 
         if not isinstance(available_sizes, list) or not available_sizes:
