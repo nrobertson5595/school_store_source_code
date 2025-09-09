@@ -238,33 +238,42 @@ const StoreManagement = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Category</TableHead>
+                            <TableHead>Points Value</TableHead>
                             <TableHead>Available Sizes</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {items.map((item) => (
-                            <TableRow key={item.id}>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>{item.category}</TableCell>
-                                <TableCell>{item.available_sizes.join(', ')}</TableCell>
-                                <TableCell>
-                                    <Badge variant={item.is_available ? 'default' : 'destructive'}>
-                                        {item.is_available ? 'Available' : 'Unavailable'}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="space-x-2">
-                                    <Button variant="outline" size="icon" onClick={() => handleEdit(item)}>
-                                        <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {items.map((item) => {
+                            // Get the points values for available sizes
+                            const pointsDisplay = item.size_pricing
+                                ? Object.entries(item.size_pricing)
+                                    .map(([size, points]) => `${size.toUpperCase()}: ${points}`)
+                                    .join(', ')
+                                : 'N/A';
+
+                            return (
+                                <TableRow key={item.id}>
+                                    <TableCell>{item.name}</TableCell>
+                                    <TableCell>{pointsDisplay}</TableCell>
+                                    <TableCell>{item.available_sizes.join(', ')}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={item.is_available ? 'default' : 'destructive'}>
+                                            {item.is_available ? 'Available' : 'Unavailable'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="space-x-2">
+                                        <Button variant="outline" size="icon" onClick={() => handleEdit(item)}>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             )}
