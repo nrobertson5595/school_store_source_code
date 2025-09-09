@@ -238,7 +238,7 @@ const StoreManagement = () => {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Points Value</TableHead>
+                            <TableHead>Points</TableHead>
                             <TableHead>Available Sizes</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Actions</TableHead>
@@ -246,11 +246,9 @@ const StoreManagement = () => {
                     </TableHeader>
                     <TableBody>
                         {items.map((item) => {
-                            // Get the points values for available sizes
+                            // Get a simple points value display (first available size or average)
                             const pointsDisplay = item.size_pricing
-                                ? Object.entries(item.size_pricing)
-                                    .map(([size, points]) => `${size.toUpperCase()}: ${points}`)
-                                    .join(', ')
+                                ? Object.values(item.size_pricing)[0] || 'N/A'
                                 : 'N/A';
 
                             return (
